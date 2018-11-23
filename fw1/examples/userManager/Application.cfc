@@ -13,6 +13,15 @@ component {
     this.mappings[ '/framework' ] = expandPath( '../../framework' );
     this.mappings[ '/userManager' ] = getDirectoryFromPath( getCurrentTemplatePath() );
 
+	// COLDBOX STATIC PROPERTY, DO NOT CHANGE UNLESS THIS IS NOT THE ROOT OF YOUR COLDBOX APP
+	COLDBOX_APP_ROOT_PATH = getDirectoryFromPath( getCurrentTemplatePath() );
+	// The web server mapping to this application. Used for remote purposes or static purposes
+	COLDBOX_APP_MAPPING = '';
+	// COLDBOX PROPERTIES
+	COLDBOX_CONFIG_FILE = '';
+	// COLDBOX APPLICATION KEY OVERRIDE
+	COLDBOX_APP_KEY = '';
+
     function _get_framework_one() {
         if ( !structKeyExists( request, '_framework_one' ) ) {
 
@@ -36,23 +45,49 @@ component {
         return request._framework_one;
     }
 
-    // delegation of lifecycle methods to FW/1:
     function onApplicationStart() {
-        return _get_framework_one().onApplicationStart();
+        // load Colbox framework
+        application.cbBootstrap = new coldbox.system.Bootstrap( COLDBOX_CONFIG_FILE, COLDBOX_APP_ROOT_PATH, COLDBOX_APP_KEY, COLDBOX_APP_MAPPING );
+
+        application.cbBootstrap.loadColdbox();
+
+        // load FW/1 framework
+        _get_framework_one().onApplicationStart();
+
+        return true;
     }
+
+    public void function onApplicationEnd( struct appScope ) {
+		arguments.appScope.cbBootstrap.onApplicationEnd( arguments.appScope );
+    }
+
     function onError( exception, event ) {
         return _get_framework_one().onError( exception, event );
     }
+
     function onRequest( targetPath ) {
         return _get_framework_one().onRequest( targetPath );
     }
+
     function onRequestEnd() {
         return _get_framework_one().onRequestEnd();
     }
+
     function onRequestStart( targetPath ) {
         return _get_framework_one().onRequestStart( targetPath );
     }
+
     function onSessionStart() {
+        application.cbBootStrap.onSessionStart();
+
         return _get_framework_one().onSessionStart();
     }
+
+    public void function onSessionEnd( struct sessionScope, struct appScope ) {
+		arguments.appScope.cbBootStrap.onSessionEnd( argumentCollection=arguments );
+    }
+
+    public boolean function onMissingTemplate( template ) {
+		return application.cbBootstrap.onMissingTemplate( argumentCollection=arguments );
+	}
 }
