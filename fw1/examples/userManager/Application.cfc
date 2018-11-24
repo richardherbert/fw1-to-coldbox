@@ -74,7 +74,23 @@ component {
     }
 
     function onRequestStart( targetPath ) {
-        return _get_framework_one().onRequestStart( targetPath );
+        if( url.keyExists( 'fwreinit' ) && url.fwreinit == '1' ) {
+            application.cbBootstrap.loadColdbox();
+        }
+
+		var actionEventMap = {
+            'user.list': 'user.list'
+        };
+
+        if( url.keyExists( 'action' ) && actionEventMap.keyExists( url.action ) ) {
+            url.event = actionEventMap[ url.action ];
+
+            application.cbBootstrap.onRequestStart( arguments.targetPath );
+
+            return false;
+        } else {
+            return _get_framework_one().onRequestStart( targetPath );
+        }
     }
 
     function onSessionStart() {
