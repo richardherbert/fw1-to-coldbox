@@ -59,7 +59,9 @@ component{
 	* delete
 	*/
 	function delete( event, rc, prc ){
-		event.setView( "user/delete" );
+        variables.userService.delete( rc.id );
+
+		relocate( url='index.cfm?action=user.list' );
 	}
 
 	/**
