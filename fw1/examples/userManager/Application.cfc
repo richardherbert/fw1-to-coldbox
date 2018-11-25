@@ -79,7 +79,8 @@ component {
         }
 
 		var actionEventMap = {
-            'user.list': 'user.list'
+            'user.list': 'user.list',
+            'user.delete': 'user.delete'
         };
 
         if( url.keyExists( 'action' ) && actionEventMap.keyExists( url.action ) ) {
