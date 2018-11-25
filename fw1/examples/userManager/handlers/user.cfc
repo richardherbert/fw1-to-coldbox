@@ -3,6 +3,7 @@
 */
 component{
 	property name='userService' inject='userService';
+	property name='departmentService' inject='departmentService';
 
 	// OPTIONAL HANDLER PROPERTIES
 	this.prehandler_only 	= "";
@@ -52,6 +53,11 @@ component{
 	* form
 	*/
 	function form( event, rc, prc ){
+		event.paramValue( 'id', '' );
+
+		rc.user = variables.userService.get( rc.id );
+        rc.departments = variables.departmentService.list();
+
 		event.setView( "user/form" );
 	}
 
@@ -68,6 +74,17 @@ component{
 	* save
 	*/
 	function save( event, rc, prc ){
-		event.setView( "user/save" );
+		var user = variables.userService.get( rc.id );
+
+		populateModel( user );
+
+		if( structKeyExists( rc, 'departmentId' ) && len( rc.departmentId ) ) {
+            user.setDepartmentId( rc.departmentId );
+            user.setDepartment( variables.departmentService.get( rc.departmentId ) );
+        }
+
+		variables.userService.save( user );
+
+		relocate( url='index.cfm?action=user.list' );
 	}
 }
